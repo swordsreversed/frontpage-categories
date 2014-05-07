@@ -3,7 +3,7 @@
  * Plugin Name: Frontpage Categories
  * Plugin URI:
  * Description: Add and change frontpage categories
- * Version: 0.1
+ * Version: 0.5
  * Author: D.Black
  * Author URI:
  * License: GPL2
@@ -19,7 +19,7 @@ class Frontpage_Categories {
      * Start up
      */
     public function __construct() {
-    	//add_action( 'wp_head', array( $this, 'render_frontpage') );
+      //add_action( 'wp_head', array( $this, 'render_frontpage') );
         add_action( 'admin_menu', array($this, 'add_fpc_admin_page'));
         add_action( 'admin_init', array($this, 'page_init'));
         add_shortcode('render_frontpage', array($this, 'render_frontcategories'));
@@ -85,7 +85,7 @@ class Frontpage_Categories {
             'my-setting-admin',
             'settings',
             array (
-            	'setting_name' => 'categories',
+	      'setting_name' => 'categories',
             )
         );
     }
@@ -111,10 +111,10 @@ class Frontpage_Categories {
     public function print_section_info() {
         print 'Choose the categories you wish to appear on the front page.';
         echo '<p>Your current categories are:</p><ul>';
-	    foreach ($this->options as $key => $value) {
-	    	echo '<li>'.$value.'</li>';
-	    }
-	    echo '</ul>';
+      foreach ($this->options as $key => $value) {
+	echo '<li>'.$value.'</li>';
+      }
+      echo '</ul>';
     }
 
     /**
@@ -122,24 +122,24 @@ class Frontpage_Categories {
      */
     public function categories_callback() {
 
-    	$map_cats = function($n) {
-    		$v = array($n->slug, $n->name);
-	    	return $v;
-	    };
+      $map_cats = function($n) {
+	$v = array($n->slug, $n->name);
+	return $v;
+      };
 
-    	$categories_array = get_categories();
-		$categories_list = array_map($map_cats, $categories_array);
+      $categories_array = get_categories();
+    $categories_list = array_map($map_cats, $categories_array);
 
-    	echo '<select multiple="true" id="'.$args['setting_name'].'" name="fpc_settings['.$args['setting_name'].']" >';
-    	foreach ($categories_list as $arr) {
-			printf(
-	            '<option value="%1$s" %2$s>%3$s</option>',
-	            $arr[0],
-	            selected( $arr[0], $args['value'], FALSE ), // this doesn't work???
-	            $arr[1]
-	        );
-	}
-    	echo '</select>';
+      echo '<select multiple="true" id="'.$args['setting_name'].'" name="fpc_settings['.$args['setting_name'].']" >';
+      foreach ($categories_list as $arr) {
+      printf(
+              '<option value="%1$s" %2$s>%3$s</option>',
+              $arr[0],
+              selected( $arr[0], $args['value'], FALSE ), // this doesn't work???
+              $arr[1]
+          );
+  }
+      echo '</select>';
 
         // TODO: selected option on admin page
     }
@@ -150,71 +150,120 @@ class Frontpage_Categories {
      * TODO: extract into template
      */
     public function render_frontcategories() {
-		if ( is_home() ) {
-		    $carr = get_option('fpc_settings');
-		    //echo $carr['categories'];
-		    ?>
-		    <div class="row">
-			  <div id="newsbox" class="col-sm-12">
-			    <?php if ( function_exists( 'meteor_slideshow' ) ) { meteor_slideshow( "main-page", "" ); } ?>
-			  </div>
-			</div>
+    if ( is_home() ) {
+        $fpc_categories_array = get_option('fpc_settings');
+        ?>
+            <div class="row">
+	  <div id="newsbox" class="col-sm-12">
+	      <?php if ( function_exists( 'meteor_slideshow' ) ) { meteor_slideshow( "main-page", "" ); } ?>
+	  </div>
+            </div>
+            <div class="row">
+            <?php
 
-		<?php foreach ($carr as $key => $value) {
-			?>
-			<div class="row">
-			  <div class="col-sm-6"> <!-- col1 -->
-			    <div id="newsbox" class="col-sm-12">
-			          <?php
-			            $args = array(
-			              'category_name' => $value
-			            );
-			            $query = new WP_Query($args);
+                $modcount = 0;
+                $col1_array = [
+                            'start' => '<div id="col" class="col-sm-6">',
+                            'inner_col' => '',
+                            'end' => '</div>'
+                            ];
+                 $col2_array = [
+                            'start' => '<div id="col" class="col-sm-6">',
+                            'inner_col' => '',
+                            'end' => '</div>'
+                            ];
 
-			            if ($query->have_posts()) {
-			            	$category = get_the_category();
-			            ?>
+                foreach ($fpc_categories_array as $category_slug) {
+                $modcount++;
+                if ($modcount % 2 != 0) {
+                    // column one
+                    $col1 = '<div id="newsbox" class="col-sm-12">';
 
-			            <h2><?php echo $category[0]->name; ?></h2>
-			        		<div class="panel panel-default">
-			         			<div class="panel-body">
-			         	<?php
-			              while ($query->have_posts()) {
-			                $query->the_post();
-			                ?>
+                    $args = [ 'category_name' => $category_slug ];
+                    $query = new WP_Query($args);
 
-			                <span class="pull-left img-pad-left">
-			                  <?php  if ( has_post_thumbnail() ) {
-			                    the_post_thumbnail('thmbCroppedSmll');
-			                  } ?>
-			                </span>
-			                <div class="entry-summary gutter-bottom clearfix">
-			                  <h3><a href="<?php the_permalink(); ?>" id="post-<?php the_ID(); ?>"><?php the_title(); ?></a></h3>
-			                  <?php the_excerpt(); ?>
-			                </div>
+                    if ($query->have_posts()) {
+                        $category = get_term_by( 'slug', $category_slug, 'category');
 
-			              <?php
-			            }
-			          } else {
-			          ?>
-			            <h3>No posts found under "<?php echo $page_slug; ?>"</h3>
-			          <?php
-			          }
-			          ?>
-			         </div>
-			       </div>
-			    </div>
-			  </div>
-			<?php
-			}
-		
-		} else {
-		    echo 'damn';
-		}
-	}
+                        $col1 .= '<h2>'.$category->name.'</h2>';
+                        $col1 .= '<div class="panel panel-default"><div class="panel-body">';
+                        while ($query->have_posts()) {
+                            $query->the_post();
+                            $pid = get_the_ID();
+
+                            $col1 .= '<span class="pull-left img-pad-left">';
+                            if ( has_post_thumbnail() )
+                                $col1 .= get_the_post_thumbnail($pid, 'thmbCroppedSmll');
+                            $col1 .= '</span><div class="entry-summary gutter-bottom clearfix">';
+                            $col1 .= '<h3><a href="'.get_permalink().'" id="post-'.$pid.'">'.get_the_title().'</a></h3>';
+                            $col1 .= '<p>'.get_the_excerpt().'</p>';
+                            $col1 .= '</div>';
+                        }
+
+                    } else {
+                        $col1 .=  '<h3>No posts found.</h3>';
+                    }
+                   $col1 .= '</div></div></div>';
+
+                    // insert into col1 array
+                    $col1_array['inner_col'] .= $col1;
+                } else {
+                    // column two
+                    $col2 = '<div id="newsbox" class="col-sm-12">';
+
+                    $args = [ 'category_name' => $category_slug ];
+
+                    $query = new WP_Query($args);
+                    if ($query->have_posts()) {
+                        $category = get_term_by( 'slug', $category_slug, 'category');
+
+                        $col2 .= '<h2>'.$category->name.'</h2>';
+                        $col2 .= '<div class="panel panel-default"><div class="panel-body">';
+                        while ($query->have_posts()) {
+                            $query->the_post();
+                            $pid = get_the_ID();
+
+                            $col2 .= '<span class="pull-left img-pad-left">';
+                            if ( has_post_thumbnail() )
+                                $col2 .= get_the_post_thumbnail($pid, 'thmbCroppedSmll');
+                            $col2 .= '</span><div class="entry-summary gutter-bottom clearfix">';
+                            $col2 .= '<h3><a href="'.get_permalink().'" id="post-'.$pid.'">'.get_the_title().'</a></h3>';
+                            $col2 .= '<p>'.get_the_excerpt().'</p>';
+                            $col2 .= '</div>';
+                        }
+
+                    } else {
+                        $col2 .=  '<h3>No posts found.</h3>';
+                    }
+                    $col2 .= '</div></div></div>';
+
+                    // insert into col2 array
+                    $col2_array['inner_col'] .= $col2;
+                }
+            ?>
 
 
-}
+            <?php
+            } //  end foreach
+            //print out array of column elements
+            foreach ($col1_array as $section) {
+                echo $section;
+            }
+
+            foreach ($col2_array as $section) {
+                echo $section;
+            }
+
+            ?>
+            </div> <!-- end row of categories -->
+        <?php
+    } else {
+        echo 'No categories defined!';
+    }
+  }
+
+
+} // end class
 
 
  $frontpage_categories = new Frontpage_Categories();
