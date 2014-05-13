@@ -3,7 +3,7 @@
  * Plugin Name: Frontpage Categories
  * Plugin URI:
  * Description: Add and change frontpage categories
- * Version: 0.6
+ * Version: 0.7
  * Author: D.Black
  * Author URI:
  * License: GPL2
@@ -216,7 +216,9 @@ class Frontpage_Categories {
                           // column two
                           $col2 = '<div id="newsbox" class="col-sm-12">';
 
-                          $args = [ 'category_name' => $category_slug ];
+                          $args = [ 'category_name' => $category_slug,
+                                    'posts_per_page' => 3
+                                  ];
 
                           $query = new WP_Query($args);
                           if ($query->have_posts()) {
@@ -270,4 +272,5 @@ class Frontpage_Categories {
 
 
  $frontpage_categories = new Frontpage_Categories();
+
 
