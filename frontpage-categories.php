@@ -3,7 +3,7 @@
  * Plugin Name: Frontpage Categories
  * Plugin URI:
  * Description: Add and change frontpage categories
- * Version: 0.7
+ * Version: 0.8
  * Author: D.Black
  * Author URI:
  * License: GPL2
@@ -178,6 +178,15 @@ class Frontpage_Categories {
                 foreach ($fpc_categories_array as $category_slug) {
                   if ($category_slug != '') { // check if category is not empty
                       $modcount++;
+
+                      $parentcat_link = '';
+                      $category = get_term_by( 'slug', $category_slug, 'category');
+                      if ($category->parent > 0) {
+                        $parentcat = get_term($category->parent, 'category' );
+                        $parentcat_link = $parentcat->slug.'/';
+                      }
+
+
                       if ($modcount % 2 != 0) {
                           // column one
                           $col1 = '<div id="newsbox" class="col-sm-12">';
@@ -188,7 +197,6 @@ class Frontpage_Categories {
                           $query = new WP_Query($args);
 
                           if ($query->have_posts()) {
-                              $category = get_term_by( 'slug', $category_slug, 'category');
 
                               $col1 .= '<h2>'.$category->name.'</h2>';
                               $col1 .= '<div class="panel panel-default"><div class="panel-body">';
@@ -208,7 +216,11 @@ class Frontpage_Categories {
                           } else {
                               $col1 .=  '<h3>No posts found.</h3>';
                           }
-                          $col1 .= '</div><p class="fpc__more-posts text-center"><a href="'.$category_slug.'">See more posts</a></p></div></div>';
+                          $col1 .= '</div><p class="fpc__more-posts text-center">';
+                          if ($parentcat != '') {
+                            $col1 .= $parentcat->slug;
+                          }
+                          $col1 .= '<a href="'.$parentcat_link.$category_slug.'">See more posts</a></p></div></div>';
 
                           // insert into col1 array
                           $col1_array['inner_col'] .= $col1;
@@ -242,7 +254,7 @@ class Frontpage_Categories {
                           } else {
                               $col2 .=  '<h3>No posts found.</h3>';
                           }
-                          $col2 .= '</div><p class="fpc__more-posts text-center"><a href="'.$category_slug.'">See more posts</a></p></div></div>';
+                          $col2 .= '</div><p class="fpc__more-posts text-center"><a href="'.$parentcat_link.$category_slug.'">See more posts</a></p></div></div>';
 
                           // insert into col2 array
                           $col2_array['inner_col'] .= $col2;
@@ -272,5 +284,6 @@ class Frontpage_Categories {
 
 
  $frontpage_categories = new Frontpage_Categories();
+
 
 
