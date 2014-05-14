@@ -3,7 +3,7 @@
  * Plugin Name: Frontpage Categories
  * Plugin URI:
  * Description: Add and change frontpage categories
- * Version: 0.8
+ * Version: 0.9
  * Author: D.Black
  * Author URI:
  * License: GPL2
