@@ -3,7 +3,7 @@
  * Plugin Name: Frontpage Categories
  * Plugin URI:
  * Description: Add and change frontpage categories
- * Version: 0.9
+ * Version: 0.9.1
  * Author: D.Black
  * Author URI:
  * License: GPL2
@@ -217,9 +217,6 @@ class Frontpage_Categories {
                               $col1 .=  '<h3>No posts found.</h3>';
                           }
                           $col1 .= '</div><p class="fpc__more-posts text-center">';
-                          if ($parentcat != '') {
-                            $col1 .= $parentcat->slug;
-                          }
                           $col1 .= '<a href="'.$parentcat_link.$category_slug.'">See more posts</a></p></div></div>';
 
                           // insert into col1 array
